@@ -7,7 +7,7 @@ stages:
     - dockerize
 
 # ----------------------------- LINT STAGE -----------------------------
-lint:
+.lint:
     stage: lint
     image: maven:3-eclipse-temurin-17
     script:
@@ -43,6 +43,15 @@ unit-tests:
             junit: target/surefire-reports/TEST-*.xml
     only:
         - main
+
+# ----------------------------- SAST -----------------------------------
+sast:
+  stage: test
+  include:
+    - template: Security/SAST.gitlab-ci.yml
+  only:
+    - main
+
 
 # ---------------------- SONARQUBE ANALYSIS STAGE ----------------------
 sonarqube-check:
