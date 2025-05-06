@@ -1,6 +1,7 @@
 stages:
     - lint
     - build
+    - test
     - sonarqube-check
     - sonarqube-vulnerability-report
     - dockerize
@@ -25,6 +26,7 @@ build-job:
     artifacts:
         paths:
             - target/my-webapp.war
+        expire_in: 1 day
     only:
         - main
 
