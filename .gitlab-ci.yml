@@ -7,7 +7,7 @@ stages:
     - dockerize
 
 # ----------------------------- LINT STAGE -----------------------------
-.lint:
+lint:
     stage: lint
     image: maven:3-eclipse-temurin-17
     script:

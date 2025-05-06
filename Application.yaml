@@ -3,7 +3,7 @@ kind: Deployment
 metadata:
   name: project-k8s-deployment
 spec:
-  replicas: 3 
+  replicas: 2 
   selector:
     matchLabels:
       app: project-k8s
@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
       - name: project-k8s
-        image: registry.gitlab.com/devopsagents/java-project:latest
+        image: registry.gitlab.com/hariharpanda3/gitlab-poc:latest
         ports:
         - containerPort: 8080  
 
