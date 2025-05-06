@@ -81,7 +81,7 @@ sonarqube-vulnerability-report:
         - sonarqube-check
 
 # --------------------- DOCKER BUILD & PUSH STAGE ---------------------
-.dockerize-application:
+dockerize-application:
   stage: dockerize
   image: docker:20.10
   services:
