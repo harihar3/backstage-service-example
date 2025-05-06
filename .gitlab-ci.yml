@@ -1,13 +1,109 @@
-# You can override the included template(s) by including variable overrides
-# SAST customization: https://docs.gitlab.com/ee/user/application_security/sast/#customizing-the-sast-settings
-# Secret Detection customization: https://docs.gitlab.com/user/application_security/secret_detection/pipeline/configure
-# Dependency Scanning customization: https://docs.gitlab.com/ee/user/application_security/dependency_scanning/#customizing-the-dependency-scanning-settings
-# Container Scanning customization: https://docs.gitlab.com/ee/user/application_security/container_scanning/#customizing-the-container-scanning-settings
-# Note that environment variables can be set in several places
-# See https://docs.gitlab.com/ee/ci/variables/#cicd-variable-precedence
-stages:
-- test
-sast:
-  stage: test
-include:
-- template: Security/SAST.gitlab-ci.yml
+.stages:
+  - maven-test-stage
+  - maven-deploy-stage
+  - sonarqube-stage
+  - docker-build-stage
+  - docker-push-stage
+  - docker-run-stage
+  - aws-configuration-stage
+  - kubernetes-stage
+
+maven-test-job:
+    image: maven:latest
+    script:
+        - mvn clean package
+    artifacts:
+        name: war-project
+        paths:
+            - target/my-webapp.war
+                  
+pages:
+    needs:
+        - maven-test-job
+    script:
+        - mkdir -p public
+        - cp target/*.war public/
+        - mv public/$(ls public) public/index.html
+    artifacts:
+        paths:
+         - public
+            
+.maven-deploy-job:
+    stage: maven-deploy-stage
+    tags:
+        - ec2
+        - java
+        - project
+    script:
+        - mvn deploy -s settings.xml    
+
+.sonarqube-job:
+    stage: sonarqube-stage
+    image: maven:3.6.3-jdk-11
+    variables:
+        SONAR_USER_HOME: "${CI_PROJECT_DIR}/.sonar"  # Defines the location of the analysis task cache
+        GIT_DEPTH: "0"  # Tells git to fetch all the branches of the project, required by the analysis task
+    cache:
+        key: "${CI_JOB_NAME}"
+        paths:
+          - .sonar/cache
+    script: 
+        - mvn verify sonar:sonar -Dsonar.projectKey=devopsagents_java-project_AZEnkFIsvMQHIYhXCm3M -Dsonar.projectName='java-project'
+    allow_failure: true
+    rules:
+        - if: $CI_COMMIT_BRANCH == 'main' 
+
+
+.services:
+  - docker:dind
+
+.docker-build-job:
+    needs:
+        - maven-test-job
+    image: docker:latest
+    script:
+        - docker build -t tampoohoonm/gitlabtools:latest .
+        - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+        - docker push tampoohoonm/gitlabtools:latest
+
+
+.docker-push-job:
+    stage: docker-push-stage
+    tags:
+        - ec2
+        - java
+        - project
+    script:
+        - docker login -u ${CI_REGISTRY_USER} -p ${CI_REGISTRY_PASSWORD} registry.gitlab.com
+        - docker push registry.gitlab.com/devopsagents/java-project:latest
+
+.docker-run-job:
+    stage: docker-run-stage
+    tags:
+        - ec2
+        - java
+        - project 
+    script:
+        - docker run -d -p 81:8080 registry.gitlab.com/devopsagents/java-project:latest
+
+.aws-configuration-job:
+    stage: aws-configuration-stage
+    tags:
+        - ec2
+        - java
+        - project 
+    script:
+        - aws configure set aws_access_key_id ${AWS_ACCESS_KEY_ID}    
+        - aws configure set aws_secret_access_key ${AWS_SECRET_ACCESS_KEY}
+        - aws configure set default_region ${AWS_DEFAULT_REGION}
+
+.kubernetes-job:
+    stage: kubernetes-stage
+    tags:
+        - ec2
+        - java
+        - project 
+    script: 
+        - aws eks update-kubeconfig --region us-east-1 --name project-work
+        - kubectl apply -f Application.yaml
+    
