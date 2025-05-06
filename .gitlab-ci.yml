@@ -5,6 +5,7 @@ stages:
     - sonarqube-check
     - sonarqube-vulnerability-report
     - dockerize
+    - deploy
 
 # ----------------------------- LINT STAGE -----------------------------
 lint:
@@ -96,6 +97,40 @@ dockerize-application:
     - docker push registry.gitlab.com/hariharpanda3/gitlab-poc:$CI_COMMIT_SHORT_SHA
   only:
     - main
+
+# -------------------------  DEPLOYMENT -----------------------------
+.deploy-application:
+  stage: deploy
+  image:
+    name: amazon/aws-cli
+    entrypoint: [""]
+  before_script:
+    - echo "Downloading kubectl binary..."
+    - curl -O https://s3.us-west-2.amazonaws.com/amazon-eks/1.30.7/2024-12-12/bin/linux/amd64/kubectl
+    - echo "Downloading kubectl checksum..."
+    - curl -O https://s3.us-west-2.amazonaws.com/amazon-eks/1.30.7/2024-12-12/bin/linux/amd64/kubectl.sha256
+    - echo "Verifying kubectl binary..."
+    - sha256sum -c kubectl.sha256
+    - echo "Making kubectl executable..."
+    - chmod +x ./kubectl
+    - echo "Moving kubectl to bin directory and updating PATH..."
+    - mkdir -p $HOME/bin && cp ./kubectl $HOME/bin/kubectl && export PATH=$HOME/bin:$PATH
+    - echo 'export PATH=$HOME/bin:$PATH' >> ~/.bashrc
+
+  script:
+    - echo "Configuring AWS credentials..."
+    - aws configure set aws_access_key_id $AWS_ACCESS_KEY_ID
+    - aws configure set aws_secret_access_key $AWS_SECRET_ACCESS_KEY
+    - aws configure set default_region $AWS_DEFAULT_REGION
+
+    - echo "Updating kubeconfig with EKS cluster..."
+    - aws eks update-kubeconfig --region $AWS_DEFAULT_REGION --name my-cluster
+
+    - echo "Applying Kubernetes manifests..."
+    - kubectl apply -f Application.yaml
+
+    - echo "Getting pod status..."
+    - kubectl get pod
 
 
 
