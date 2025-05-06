@@ -54,7 +54,7 @@ sonarqube-vulnerability-report:
     dependencies:
         - sonarqube-check
 
-# Dockerization Stage
+# --------------------- DOCKER BUILD & PUSH STAGE ---------------------
 dockerzie-application:
     stage: dockerize
     image: docker:20.10
