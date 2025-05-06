@@ -48,7 +48,7 @@ unit-tests:
 
 
 # ---------------------- SONARQUBE ANALYSIS STAGE ----------------------
-sonarqube-check:
+.sonarqube-check:
     stage: sonarqube-check
     image: maven:3-eclipse-temurin-17
     variables:
@@ -66,7 +66,7 @@ sonarqube-check:
         - main
 
 # ----------- EXPORT SONARQUBE SECURITY VULNERABILITY REPORT ----------
-sonarqube-vulnerability-report:
+.sonarqube-vulnerability-report:
     stage: sonarqube-vulnerability-report
     script:
         - 'curl -u "${SONAR_TOKEN}:" "${SONAR_HOST_URL}/api/issues/gitlab_sast_export?projectKey=hariharpanda3_gitlab-poc_2eb50b77-dee9-4ab8-98a0-39f70686ecbe&branch=${CI_COMMIT_BRANCH}&pullRequest=${CI_MERGE_REQUEST_IID}" -o gl-sast-sonar-report.json'
@@ -90,6 +90,8 @@ dockerize-application:
     - echo "Logging in to GitLab Container Registry..."
     - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" registry.gitlab.com
   script:
+    - echo "Copying WAR file..."
+    - cp target/my-webapp.war .
     - echo "Building Docker image..."
     - docker build -t registry.gitlab.com/hariharpanda3/gitlab-poc:$CI_COMMIT_SHORT_SHA .
     - echo "Pushing Docker image..."
