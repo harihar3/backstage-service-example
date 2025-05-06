@@ -5,7 +5,7 @@ stages:
     - sonarqube-vulnerability-report
     - dockerize
 
-#--------------------------------LINT STAGE---------------------
+# ----------------------------- LINT STAGE -----------------------------
 lint:
     stage: lint
     image: maven:3-eclipse-temurin-17
@@ -15,10 +15,21 @@ lint:
     allow_failure: true
     only:
         - main
-
+# ----------------------------- BUILD STAGE -----------------------------
+build-job:
+    stage: build
+    image: maven:3-eclipse-temurin-17
+    script:
+        - echo "Running build..."
+        - mvn clean package -DskipTests=true
+    artifacts:
+        paths:
+            - target/my-webapp.war
+    only:
+        - main
 
 # Build Stage
-build-job:
+.build-job:
     stage: build
     image: maven:latest
     script:
