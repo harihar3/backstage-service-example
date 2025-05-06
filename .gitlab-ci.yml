@@ -38,7 +38,7 @@ unit-tests:
         - echo "Running unit tests..."
         - mvn test
     artifacts:
-        report:
+        reports:
             junit: target/surefire-reports/TEST-*.xml
     only:
         - main
