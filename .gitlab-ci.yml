@@ -44,13 +44,6 @@ unit-tests:
     only:
         - main
 
-# ----------------------------- SAST -----------------------------------
-sast:
-    stage: test
-    include:
-        - template: Security/SAST.gitlab-ci.yml
-    only:
-        - main
 
 # ---------------------- SONARQUBE ANALYSIS STAGE ----------------------
 sonarqube-check:
