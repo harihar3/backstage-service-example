@@ -1,8 +1,21 @@
 stages:
+    - lint
     - build
     - sonarqube-check
     - sonarqube-vulnerability-report
     - dockerize
+
+#--------------------------------LINT STAGE---------------------
+lint:
+    stage: lint
+    image: maven:3-eclipse-temurin-17
+    script:
+        - echo "Running code linting with checkstyle....."
+        - mvn checkstyle:check
+    allow_failure: true
+    only:
+        - main
+
 
 # Build Stage
 build-job:
@@ -17,7 +30,7 @@ build-job:
         expire_in: 1 day
 
 # SonarQube Analysis Stage
-sonarqube-check:
+.sonarqube-check:
     stage: sonarqube-check
     image: maven:3-eclipse-temurin-17
     variables:
@@ -37,7 +50,7 @@ sonarqube-check:
         - develop
 
 # SonarQube Vulnerability Report Stage
-sonarqube-vulnerability-report:
+.sonarqube-vulnerability-report:
     stage: sonarqube-vulnerability-report
     script:
         - 'curl -u "${SONAR_TOKEN}:" "${SONAR_HOST_URL}/api/issues/gitlab_sast_export?projectKey=hariharpanda3_gitlab-poc_2eb50b77-dee9-4ab8-98a0-39f70686ecbe&branch=${CI_COMMIT_BRANCH}&pullRequest=${CI_MERGE_REQUEST_IID}" -o gl-sast-sonar-report.json'
@@ -55,7 +68,7 @@ sonarqube-vulnerability-report:
         - sonarqube-check
 
 # --------------------- DOCKER BUILD & PUSH STAGE ---------------------
-dockerzie-application:
+.dockerzie-application:
     stage: dockerize
     image: docker:20.10
     services:
