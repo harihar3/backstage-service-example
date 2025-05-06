@@ -12,6 +12,8 @@
         <maven.compiler.source>11</maven.compiler.source>
         <maven.compiler.target>11</maven.compiler.target>
         <sonar.qualitygate.wait>true</sonar.qualitygate.wait>
+        <sonar.projectKey>hariharpanda3_gitlab-poc_2eb50b77-dee9-4ab8-98a0-39f70686ecbe</sonar.projectKey>
+        <sonar.projectName>Gitlab-Poc</sonar.projectName>
 
     </properties>
 
