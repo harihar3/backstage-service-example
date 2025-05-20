@@ -17,6 +17,8 @@ spec:
         image: registry.gitlab.com/hariharpanda3/gitlab-poc:latest
         ports:
         - containerPort: 8080  
+      imagePullSecrets:
+      - name: gitlab-registry-secret
 
 ---
 apiVersion: v1
