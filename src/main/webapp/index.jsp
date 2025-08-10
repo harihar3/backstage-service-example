@@ -3,7 +3,7 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>Welcome to Your First Project</title>
+    <title>Welcome to Backstage GP1</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -24,8 +24,8 @@
 </head>
 <body>
     <div class="container">
-        <h1>Welcome to Your First Project</h1>
-	    <h1> Congratulations!! You are Ready for GitLab Jobs</h1>
+        <h1>Welcome to Backstage GP1</h1>
+	    <h1> We are ready for Backstage!</h1>
     </div>
 </body>
 </html>
