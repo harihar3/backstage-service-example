@@ -24,8 +24,8 @@
 </head>
 <body>
     <div class="container">
-        <h1>Welcome to Backstage GP1</h1>
-	    <h1> We are ready for Backstage!</h1>
+        <h1>Welcome to FIS Testing</h1>
+	    <h1>The application is up and running successfully.</h1>
     </div>
 </body>
 </html>
